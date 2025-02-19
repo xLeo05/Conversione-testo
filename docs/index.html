@@ -72,6 +72,18 @@
             height: 100vh;
             z-index: 0;
         }
+        /* Selettore del tema sempre visibile */
+        #theme-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2;
+            background-color: #111;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 5px;
+            border-radius: 4px;
+        }
         /* Adattamenti per dispositivi mobili */
         @media screen and (max-width: 600px) {
             h1 {
@@ -242,17 +254,8 @@
                     }
 
                     function drawZombie() {
-                        ctx.fillStyle = 'rgba(10, 10, 10, 0.1)';
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        ctx.fillStyle = '#99ff99';
-
-                        particles.forEach(p => {
-                            ctx.beginPath();
-                            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                            ctx.fill();
-
-                            p.x += p.speedX;
-                            p.y += p.speedY;
+                        ctx.fillStyle = 'rgba
+                        p.y += p.speedY;
 
                     if (p.x < 0) p.x = canvas.width;
                     if (p.x > canvas.width) p.x = 0;
