@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traduttore Binario a Testo</title>
+</head>
+<body>
+    <h1>Traduttore Binario a Testo</h1>
+    <textarea id="input-binario" rows="4" cols="50" placeholder="Inserisci il binario qui"></textarea>
+    <br>
+    <button onclick="converti()">Converti</button>
+    <p id="output-testo"></p>
+
+    <script>
+        function converti() {
+            const binario = document.getElementById('input-binario').value;
+            const binari = binario.split(' ');
+            let testo = '';
+            for (let b of binari) {
+                const carattere = String.fromCharCode(parseInt(b, 2));
+                testo += carattere;
+            }
+            document.getElementById('output-testo').innerText = testo;
+        }
+    </script>
+</body>
+</html>
