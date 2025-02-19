@@ -2,24 +2,19 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Traduttore Binario ↔ Testo - Tema Matrix</title>
+    <title>Traduttore Binario ↔ Testo - Temi Dinamici</title>
     <!-- Meta tag per rendere il sito responsivo -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Stile generale */
+        /* Stili di base */
         body {
-            background-color: #000000;
-            color: #00ff00; /* Verde brillante per il testo */
-            font-family: 'Courier New', monospace;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
         }
         h1, h2 {
-            color: #00ff00;
             text-align: center;
             margin: 10px 0;
-            text-shadow: 0 0 5px #00ff00;
         }
         .container {
             position: relative;
@@ -27,161 +22,285 @@
             max-width: 90%;
             margin: 20px auto;
             padding: 20px;
-            background-color: rgba(0, 0, 0, 0.85); /* Sfondo leggermente più scuro */
             border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
         }
         textarea {
             width: 100%;
-            background-color: #002200; /* Verde molto scuro per il fondo delle textarea */
-            color: #00ff00;
-            border: 1px solid #00ff00;
             padding: 10px;
             margin-bottom: 10px;
             border-radius: 4px;
             resize: vertical;
             font-size: 1em;
         }
-        textarea::placeholder {
-            color: #00aa00; /* Colore dei placeholder */
-        }
         button {
-            background-color: #003300; /* Pulsante verde scuro */
-            color: #00ff00;
-            border: 1px solid #00ff00;
             padding: 10px 20px;
             cursor: pointer;
             font-size: 1em;
             margin-bottom: 20px;
             border-radius: 4px;
         }
-        button:hover {
-            background-color: #00ff00; /* Cambia colore al passaggio del mouse */
-            color: #003300;
-        }
         .output {
-            background-color: #002200; /* Sfondo scuro per l'output */
-            color: #00ff00;
-            border: 1px solid #00ff00;
             padding: 10px;
             border-radius: 4px;
             word-break: break-word;
         }
-        /* Effetto pioggia di codice */
-        #matrix {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 0;
+        #theme-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 2;
         }
-        /* Adattamenti per dispositivi mobili */
-        @media screen and (max-width: 600px) {
-            h1 {
-                font-size: 1.8em;
-            }
-            h2 {
-                font-size: 1.4em;
-            }
-            button, textarea {
-                font-size: 1em;
-            }
-        }
+        /* Altri stili verranno applicati dinamicamente via JavaScript */
     </style>
 </head>
 <body>
-    <!-- Canvas per l'effetto Matrix -->
-    <canvas id="matrix"></canvas>
+    <!-- Selettore del tema -->
+    <select id="theme-selector" onchange="changeTheme(this.value)">
+        <option value="matrix">Matrix</option>
+        <option value="terminator">Terminator</option>
+        <option value="zombie">Zombie</option>
+    </select>
+    
+    <!-- Canvas per l'animazione -->
+    <canvas id="animation-canvas"></canvas>
+    
     <!-- Contenuto principale -->
     <div class="container">
         <h1>Traduttore Binario ↔ Testo</h1>
         <div>
             <h2>Testo a Binario</h2>
-            <textarea id="input-testo" rows="4" placeholder="Inserisci il testo qui..."></textarea>
+            <textarea id="input-text" rows="4" placeholder="Inserisci il testo qui..."></textarea>
             <br>
-            <button onclick="convertiTestoBinario()">Converti</button>
-            <div id="output-binario" class="output"></div>
+            <button onclick="convertTextToBinary()">Converti</button>
+            <div id="output-binary" class="output"></div>
         </div>
         <div>
             <h2>Binario a Testo</h2>
-            <textarea id="input-binario" rows="4" placeholder="Inserisci il binario qui (usa spazio tra i caratteri binari)..."></textarea>
+            <textarea id="input-binary" rows="4" placeholder="Inserisci il binario qui (usa spazio tra i caratteri binari)..."></textarea>
             <br>
-            <button onclick="convertiBinarioTesto()">Converti</button>
-            <div id="output-testo" class="output"></div>
+            <button onclick="convertBinaryToText()">Converti</button>
+            <div id="output-text" class="output"></div>
         </div>
     </div>
-
+    
     <script>
-        /* Effetto Matrix */
-        const canvas = document.getElementById('matrix');
+        // Variabile per mantenere traccia del tema corrente
+        let currentTheme = 'matrix';
+
+        // Elementi del DOM
+        const body = document.body;
+        const container = document.querySelector('.container');
+        const themeSelector = document.getElementById('theme-selector');
+        const canvas = document.getElementById('animation-canvas');
         const ctx = canvas.getContext('2d');
 
         // Imposta le dimensioni del canvas
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        const letters = 'アァカサタナハマヤャラワン012345789ＶＷＸＹＺ';
-        const matrix = letters.split('');
+        // Definizione dei temi
+        const themes = {
+            matrix: {
+                colors: {
+                    background: '#000000',
+                    textColor: '#00ff00',
+                    inputBackground: '#002200',
+                    buttonBackground: '#003300',
+                    buttonHover: '#00ff00',
+                    buttonText: '#00ff00',
+                    outputBackground: '#002200',
+                },
+                animation: function() {
+                    // Implementazione dell'animazione Matrix
+                    const letters = 'アァカサタナハマヤャラワン012345789ＶＷＸＹＺ';
+                    const matrixChars = letters.split('');
+                    const fontSize = 16;
+                    const columns = canvas.width / fontSize;
+                    const drops = [];
+                    for (let x = 0; x < columns; x++) {
+                        drops[x] = 1;
+                    }
 
-        const fontSize = 16;
-        const columns = canvas.width / fontSize;
+                    function drawMatrix() {
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.fillStyle = '#00ff00';
+                        ctx.font = fontSize + 'px monospace';
 
-        const drops = [];
-        for (let x = 0; x < columns; x++) {
-            drops[x] = 1;
-        }
+                        for (let i = 0; i < drops.length; i++) {
+                            let text = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+                            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
-        function draw() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                                drops[i] = 0;
+                            }
+                            drops[i]++;
+                        }
+                    }
 
-            ctx.fillStyle = '#00ff00'; // Colore verde brillante per il testo
-            ctx.font = fontSize + 'px monospace';
-
-            for (let i = 0; i < drops.length; i++) {
-                let text = matrix[Math.floor(Math.random() * matrix.length)];
-                
-                // Aggiungi il messaggio segreto casualmente
-                if (Math.random() > 0.995) {
-                    text = 'LEO';
+                    if (typeof animationInterval !== 'undefined') clearInterval(animationInterval);
+                    animationInterval = setInterval(drawMatrix, 33);
                 }
+            },
+            terminator: {
+                colors: {
+                    background: '#202020',
+                    textColor: '#ff0000',
+                    inputBackground: '#303030',
+                    buttonBackground: '#400000',
+                    buttonHover: '#ff0000',
+                    buttonText: '#ff0000',
+                    outputBackground: '#303030',
+                },
+                animation: function() {
+                    // Implementazione dell'animazione Terminator
+                    let binaryStreams = [];
+                    for (let i = 0; i < canvas.width; i += 20) {
+                        binaryStreams.push({
+                            x: i,
+                            y: Math.random() * canvas.height,
+                            speed: (Math.random() * 5) + 2
+                        });
+                    }
 
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    function drawTerminator() {
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
+                        ctx.fillStyle = '#ff0000';
+                        ctx.font = '16px monospace';
+
+                        binaryStreams.forEach(stream => {
+                            let binaryChar = Math.round(Math.random());
+                            ctx.fillText(binaryChar, stream.x, stream.y);
+                            stream.y += stream.speed;
+                            if (stream.y > canvas.height) {
+                                stream.y = 0;
+                                stream.speed = (Math.random() * 5) + 2;
+                            }
+                        });
+                    }
+
+                    if (typeof animationInterval !== 'undefined') clearInterval(animationInterval);
+                    animationInterval = setInterval(drawTerminator, 50);
                 }
-                drops[i]++;
-            }
-        }
+            },
+            zombie: {
+                colors: {
+                    background: '#0a0a0a',
+                    textColor: '#99ff99',
+                    inputBackground: '#1a1a1a',
+                    buttonBackground: '#2a2a2a',
+                    buttonHover: '#99ff99',
+                    buttonText: '#99ff99',
+                    outputBackground: '#1a1a1a',
+                },
+                animation: function() {
+                    // Implementazione dell'animazione Zombie
+                    let particles = [];
+                    for (let i = 0; i < 100; i++) {
+                        particles.push({
+                            x: Math.random() * canvas.width,
+                            y: Math.random() * canvas.height,
+                            radius: Math.random() * 3 + 1,
+                            speedX: (Math.random() - 0.5) * 1,
+                            speedY: (Math.random() - 0.5) * 1
+                        });
+                    }
 
-        setInterval(draw, 33);
+                    function drawZombie() {
+                        ctx.fillStyle = 'rgba(10, 10, 10, 0.1)';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.fillStyle = '#99ff99';
 
-        /* Funzioni di conversione */
-        function convertiTestoBinario() {
-            const testo = document.getElementById('input-testo').value;
-            let binario = '';
-            for (let i = 0; i < testo.length; i++) {
-                binario += testo.charCodeAt(i).toString(2).padStart(8, '0') + ' ';
-            }
-            document.getElementById('output-binario').innerText = binario.trim();
-        }
+                        particles.forEach(p => {
+                            ctx.beginPath();
+                            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                            ctx.fill();
 
-        function convertiBinarioTesto() {
-            const binario = document.getElementById('input-binario').value;
-            const binari = binario.trim().split(' ');
-            let testo = '';
-            for (let b of binari) {
-                if(b !== '') {
-                    const carattere = String.fromCharCode(parseInt(b, 2));
-                    testo += carattere;
+                            p.x += p.speedX;
+                            p.y += p.speedY;
+
+                            if (p.x < 0) p.x = canvas.width;
+                            if (p.x > canvas.width) p.x = 0;
+                            if (p.y < 0) p.y = canvas.height;
+                            if (p.y > canvas.height) p.y = 0;
+                        });
+                    }
+
+                    if (typeof animationInterval !== 'undefined') clearInterval(animationInterval);
+                    animationInterval = setInterval(drawZombie, 50);
                 }
             }
-            document.getElementById('output-testo').innerText = testo;
+        };
+
+        // Funzione per cambiare il tema
+        function changeTheme(theme) {
+            currentTheme = theme;
+            const themeData = themes[theme];
+
+            // Cambia i colori
+            body.style.backgroundColor = themeData.colors.background;
+            body.style.color = themeData.colors.textColor;
+            container.style.backgroundColor = themeData.colors.inputBackground;
+            container.style.boxShadow = `0 0 15px ${themeData.colors.buttonHover}`;
+            
+            // Aggiorna gli stili degli elementi
+            document.querySelectorAll('textarea, .output').forEach(el => {
+                el.style.backgroundColor = themeData.colors.inputBackground;
+                el.style.color = themeData.colors.textColor;
+                el.style.border = `1px solid ${themeData.colors.buttonHover}`;
+            });
+
+            document.querySelectorAll('button').forEach(el => {
+                el.style.backgroundColor = themeData.colors.buttonBackground;
+                el.style.color = themeData.colors.buttonText;
+                el.style.border = `1px solid ${themeData.colors.buttonHover}`;
+                el.addEventListener('mouseover', function() {
+                    this.style.backgroundColor = themeData.colors.buttonHover;
+                    this.style.color = themeData.colors.buttonBackground;
+                });
+                el.addEventListener('mouseout', function() {
+                    this.style.backgroundColor = themeData.colors.buttonBackground;
+                    this.style.color = themeData.colors.buttonText;
+                });
+            });
+
+            // Pulisci il canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Avvia l'animazione del tema
+            themeData.animation();
         }
 
-        /* Aggiorna dimensioni canvas al ridimensionamento finestra */
+        // Inizializza con il tema predefinito
+        let animationInterval;
+        changeTheme(currentTheme);
+
+        // Funzioni di conversione
+        function convertTextToBinary() {
+            const text = document.getElementById('input-text').value;
+            let binary = '';
+            for (let i = 0; i < text.length; i++) {
+                binary += text.charCodeAt(i).toString(2).padStart(8, '0') + ' ';
+            }
+            document.getElementById('output-binary').innerText = binary.trim();
+        }
+
+        function convertBinaryToText() {
+            const binary = document.getElementById('input-binary').value;
+            const binaries = binary.trim().split(' ');
+            let text = '';
+            for (let b of binaries) {
+                if (b !== '') {
+                    const character = String.fromCharCode(parseInt(b, 2));
+                    text += character;
+                }
+            }
+            document.getElementById('output-text').innerText = text;
+        }
+
+        // Aggiorna le dimensioni del canvas al ridimensionamento della finestra
         window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
