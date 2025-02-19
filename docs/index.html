@@ -60,8 +60,11 @@
         <option value="terminator">Terminator</option>
         <option value="zombie">Zombie</option>
     </select>
-
-    <!-- Contenuto principale in alto -->
+    
+    <!-- Canvas per l'animazione -->
+    <canvas id="animation-canvas"></canvas>
+    
+    <!-- Contenuto principale -->
     <div class="container">
         <h1>Traduttore Binario ↔ Testo</h1>
         <div>
@@ -79,10 +82,7 @@
             <div id="output-text" class="output"></div>
         </div>
     </div>
-
-    <!-- Canvas per l'animazione sotto il contenuto principale -->
-    <canvas id="animation-canvas"></canvas>
-
+    
     <script>
         // Variabile per mantenere traccia del tema corrente
         let currentTheme = 'matrix';
@@ -248,4 +248,63 @@
             // Aggiorna gli stili degli elementi
             document.querySelectorAll('textarea, .output').forEach(el => {
                 el.style.backgroundColor = themeData.colors.inputBackground;
-                el.style.color = themeData.colors.textColor
+                el.style.color = themeData.colors.textColor;
+                el.style.border = `1px solid ${themeData.colors.buttonHover}`;
+            });
+
+            document.querySelectorAll('button').forEach(el => {
+                el.style.backgroundColor = themeData.colors.buttonBackground;
+                el.style.color = themeData.colors.buttonText;
+                el.style.border = `1px solid ${themeData.colors.buttonHover}`;
+                el.addEventListener('mouseover', function() {
+                    this.style.backgroundColor = themeData.colors.buttonHover;
+                    this.style.color = themeData.colors.buttonBackground;
+                });
+                el.addEventListener('mouseout', function() {
+                    this.style.backgroundColor = themeData.colors.buttonBackground;
+                    this.style.color = themeData.colors.buttonText;
+                });
+            });
+
+            // Pulisci il canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Avvia l'animazione del tema
+            themeData.animation();
+        }
+
+        // Inizializza con il tema predefinito
+        let animationInterval;
+        changeTheme(currentTheme);
+
+        // Funzioni di conversione
+        function convertTextToBinary() {
+            const text = document.getElementById('input-text').value;
+            let binary = '';
+            for (let i = 0; i < text.length; i++) {
+                binary += text.charCodeAt(i).toString(2).padStart(8, '0') + ' ';
+            }
+            document.getElementById('output-binary').innerText = binary.trim();
+        }
+
+        function convertBinaryToText() {
+            const binary = document.getElementById('input-binary').value;
+            const binaries = binary.trim().split(' ');
+            let text = '';
+            for (let b of binaries) {
+                if (b !== '') {
+                    const character = String.fromCharCode(parseInt(b, 2));
+                    text += character;
+                }
+            }
+            document.getElementById('output-text').innerText = text;
+        }
+
+        // Aggiorna le dimensioni del canvas al ridimensionamento della finestra
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
