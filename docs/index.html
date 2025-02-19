@@ -2,92 +2,163 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Traduttore Binario ↔ Testo</title>
+    <title>Traduttore Binario ↔ Testo - Tema Matrix</title>
     <style>
+        /* Stile generale */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            text-align: center;
+            background-color: #000;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            overflow: hidden;
         }
-        h1 {
-            color: #333;
+        h1, h2 {
+            color: #0f0;
+            text-align: center;
         }
         .container {
-            background-color: #fff;
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+            margin: 0 auto;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            display: inline-block;
-            text-align: left;
         }
         textarea {
             width: 100%;
+            background-color: #000;
+            color: #0f0;
+            border: 1px solid #0f0;
             padding: 10px;
             margin-bottom: 10px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
+            resize: vertical;
         }
         button {
+            background-color: #000;
+            color: #0f0;
+            border: 1px solid #0f0;
             padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            background-color: #007bff;
-            color: #fff;
             cursor: pointer;
+            font-size: 1em;
+            margin-bottom: 20px;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #0f0;
+            color: #000;
         }
         .output {
-            margin-top: 10px;
+            background-color: #000;
+            color: #0f0;
+            border: 1px solid #0f0;
             padding: 10px;
-            border-radius: 4px;
-            background-color: #e9ecef;
             word-break: break-word;
+        }
+        /* Effetto pioggia di codice */
+        #matrix {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
         }
     </style>
 </head>
 <body>
-    <h1>Traduttore Binario ↔ Testo</h1>
+    <!-- Canvas per l'effetto Matrix -->
+    <canvas id="matrix"></canvas>
+    <!-- Contenuto principale -->
     <div class="container">
-        <h2>Testo a Binario</h2>
-        <textarea id="input-testo" rows="4" cols="50" placeholder="Inserisci il testo qui"></textarea>
-        <br>
-        <button onclick="convertiTestoBinario()">Converti</button>
-        <p id="output-binario" class="output"></p>
-    </div>
-    <br>
-    <div class="container">
-        <h2>Binario a Testo</h2>
-        <textarea id="input-binario" rows="4" cols="50" placeholder="Inserisci il binario qui (usa spazio tra i caratteri binari)"></textarea>
-        <br>
-        <button onclick="convertiBinarioTesto()">Converti</button>
-        <p id="output-testo" class="output"></p>
+        <h1>Traduttore Binario ↔ Testo</h1>
+        <div>
+            <h2>Testo a Binario</h2>
+            <textarea id="input-testo" rows="4" placeholder="Inserisci il testo qui..."></textarea>
+            <br>
+            <button onclick="convertiTestoBinario()">Converti</button>
+            <div id="output-binario" class="output"></div>
+        </div>
+        <div>
+            <h2>Binario a Testo</h2>
+            <textarea id="input-binario" rows="4" placeholder="Inserisci il binario qui (usa spazio tra i caratteri binari)..."></textarea>
+            <br>
+            <button onclick="convertiBinarioTesto()">Converti</button>
+            <div id="output-testo" class="output"></div>
+        </div>
     </div>
 
     <script>
+        /* Effetto Matrix */
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const letters = 'アァカサタナハマヤャラワン012345789ＶＷＸＹＺ';
+        const matrix = letters.split('');
+
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+
+        const drops = [];
+        for (let x = 0; x < columns; x++) {
+            drops[x] = 1;
+        }
+
+        function draw() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#0f0';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                let text = matrix[Math.floor(Math.random() * matrix.length)];
+                
+                // Aggiungi il messaggio segreto casualmente
+                if (Math.random() > 0.99) {
+                    text = 'LEO';
+                }
+
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        setInterval(draw, 33);
+
+        /* Funzioni di conversione */
         function convertiTestoBinario() {
             const testo = document.getElementById('input-testo').value;
             let binario = '';
             for (let i = 0; i < testo.length; i++) {
-                binario += testo.charCodeAt(i).toString(2) + ' ';
+                binario += testo.charCodeAt(i).toString(2).padStart(8, '0') + ' ';
             }
             document.getElementById('output-binario').innerText = binario.trim();
         }
 
         function convertiBinarioTesto() {
             const binario = document.getElementById('input-binario').value;
-            const binari = binario.split(' ');
+            const binari = binario.trim().split(' ');
             let testo = '';
             for (let b of binari) {
-                const carattere = String.fromCharCode(parseInt(b, 2));
-                testo += carattere;
+                if(b !== '') {
+                    const carattere = String.fromCharCode(parseInt(b, 2));
+                    testo += carattere;
+                }
             }
             document.getElementById('output-testo').innerText = testo;
         }
+
+        /* Aggiorna dimensioni canvas al ridimensionamento finestra */
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
     </script>
 </body>
 </html>
