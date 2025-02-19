@@ -254,93 +254,102 @@
                     }
 
                     function drawZombie() {
-                        ctx.fillStyle = 'rgba
-                        p.y += p.speedY;
+                        ctx.fillStyle = 'rgba(10, 10, 10, 0.1)';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.fillStyle = '#99ff99';
 
-                    if (p.x < 0) p.x = canvas.width;
-                    if (p.x > canvas.width) p.x = 0;
-                    if (p.y < 0) p.y = canvas.height;
-                    if (p.y > canvas.height) p.y = 0;
-                });
+                        particles.forEach(p => {
+                            ctx.beginPath();
+                            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                            ctx.fill();
+
+                            p.x += p.speedX;
+                            p.y += p.speedY;
+
+                            if (p.x < 0) p.x = canvas.width;
+                            if (p.x > canvas.width) p.x = 0;
+                            if (p.y < 0) p.y = canvas.height;
+                            if (p.y > canvas.height) p.y = 0;
+                        });
+                    }
+
+                    if (typeof animationInterval !== 'undefined') clearInterval(animationInterval);
+                    animationInterval = setInterval(drawZombie, 50);
+                }
             }
+        };
 
-            if (typeof animationInterval !== 'undefined') clearInterval(animationInterval);
-            animationInterval = setInterval(drawZombie, 50);
+        // Funzione per cambiare il tema
+        function changeTheme(theme) {
+            currentTheme = theme;
+            const themeData = themes[theme];
+
+            // Cambia i colori
+            body.style.backgroundColor = themeData.colors.background;
+            body.style.color = themeData.colors.textColor;
+            container.style.backgroundColor = themeData.colors.inputBackground;
+            container.style.boxShadow = `0 0 15px ${themeData.colors.buttonHover}`;
+
+            // Aggiorna gli stili degli elementi
+            document.querySelectorAll('textarea, .output').forEach(el => {
+                el.style.backgroundColor = themeData.colors.inputBackground;
+                el.style.color = themeData.colors.textColor;
+                el.style.border = `1px solid ${themeData.colors.buttonHover}`;
+            });
+
+            document.querySelectorAll('button').forEach(el => {
+                el.style.backgroundColor = themeData.colors.buttonBackground;
+                el.style.color = themeData.colors.buttonText;
+                el.style.border = `1px solid ${themeData.colors.buttonHover}`;
+                el.addEventListener('mouseover', function() {
+                    this.style.backgroundColor = themeData.colors.buttonHover;
+                    this.style.color = themeData.colors.buttonBackground;
+                });
+                el.addEventListener('mouseout', function() {
+                    this.style.backgroundColor = themeData.colors.buttonBackground;
+                    this.style.color = themeData.colors.buttonText;
+                });
+            });
+
+            // Pulisci il canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Avvia l'animazione del tema
+            themeData.animation();
         }
-    }
-};
 
-// Funzione per cambiare il tema
-function changeTheme(theme) {
-    currentTheme = theme;
-    const themeData = themes[theme];
+        // Inizializza con il tema predefinito
+        let animationInterval;
+        changeTheme(currentTheme);
 
-    // Cambia i colori
-    body.style.backgroundColor = themeData.colors.background;
-    body.style.color = themeData.colors.textColor;
-    container.style.backgroundColor = themeData.colors.inputBackground;
-    container.style.boxShadow = `0 0 15px ${themeData.colors.buttonHover}`;
-
-    // Aggiorna gli stili degli elementi
-    document.querySelectorAll('textarea, .output').forEach(el => {
-        el.style.backgroundColor = themeData.colors.inputBackground;
-        el.style.color = themeData.colors.textColor;
-        el.style.border = `1px solid ${themeData.colors.buttonHover}`;
-    });
-
-    document.querySelectorAll('button').forEach(el => {
-        el.style.backgroundColor = themeData.colors.buttonBackground;
-        el.style.color = themeData.colors.buttonText;
-        el.style.border = `1px solid ${themeData.colors.buttonHover}`;
-        el.addEventListener('mouseover', function() {
-            this.style.backgroundColor = themeData.colors.buttonHover;
-            this.style.color = themeData.colors.buttonBackground;
-        });
-        el.addEventListener('mouseout', function() {
-            this.style.backgroundColor = themeData.colors.buttonBackground;
-            this.style.color = themeData.colors.buttonText;
-        });
-    });
-
-    // Pulisci il canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Avvia l'animazione del tema
-    themeData.animation();
-}
-
-// Inizializza con il tema predefinito
-let animationInterval;
-changeTheme(currentTheme);
-
-// Funzioni di conversione
-function convertTextToBinary() {
-    const text = document.getElementById('input-text').value;
-    let binary = '';
-    for (let i = 0; i < text.length; i++) {
-        binary += text.charCodeAt(i).toString(2).padStart(8, '0') + ' ';
-    }
-    document.getElementById('output-binary').innerText = binary.trim();
-}
-
-function convertBinaryToText() {
-    const binary = document.getElementById('input-binary').value;
-    const binaries = binary.trim().split(' ');
-    let text = '';
-    for (let b of binaries) {
-        if (b !== '') {
-            const character = String.fromCharCode(parseInt(b, 2));
-            text += character;
+        // Funzioni di conversione
+        function convertTextToBinary() {
+            const text = document.getElementById('input-text').value;
+            let binary = '';
+            for (let i = 0; i < text.length; i++) {
+                binary += text.charCodeAt(i).toString(2).padStart(8, '0') + ' ';
+            }
+            document.getElementById('output-binary').innerText = binary.trim();
         }
-    }
-    document.getElementById('output-text').innerText = text;
-}
 
-// Aggiorna le dimensioni del canvas al ridimensionamento della finestra
-window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-});
-</script>
+        function convertBinaryToText() {
+            const binary = document.getElementById('input-binary').value;
+            const binaries = binary.trim().split(' ');
+            let text = '';
+            for (let b of binaries) {
+                if (b !== '') {
+                    const character = String.fromCharCode(parseInt(b, 2));
+                    text += character;
+                }
+            }
+            document.getElementById('output-text').innerText = text;
+        }
+
+        // Aggiorna le dimensioni del canvas al ridimensionamento della finestra
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
 </body>
 </html>
