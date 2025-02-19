@@ -11,8 +11,12 @@
             margin: 0;
             padding: 0;
             overflow-x: hidden;
+            background-color: #000;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
         }
         h1, h2 {
+            color: #0f0;
             text-align: center;
             margin: 10px 0;
         }
@@ -22,10 +26,15 @@
             max-width: 90%;
             margin: 20px auto;
             padding: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
             border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
         }
         textarea {
             width: 100%;
+            background-color: #111;
+            color: #0f0;
+            border: 1px solid #0f0;
             padding: 10px;
             margin-bottom: 10px;
             border-radius: 4px;
@@ -33,24 +42,48 @@
             font-size: 1em;
         }
         button {
+            background-color: #111;
+            color: #0f0;
+            border: 1px solid #0f0;
             padding: 10px 20px;
             cursor: pointer;
             font-size: 1em;
             margin-bottom: 20px;
             border-radius: 4px;
         }
+        button:hover {
+            background-color: #0f0;
+            color: #111;
+        }
         .output {
+            background-color: #111;
+            color: #0f0;
+            border: 1px solid #0f0;
             padding: 10px;
             border-radius: 4px;
             word-break: break-word;
         }
-        #theme-selector {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 2;
+        /* Effetto pioggia di codice */
+        #matrix {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
         }
-        /* Altri stili verranno applicati dinamicamente via JavaScript */
+        /* Adattamenti per dispositivi mobili */
+        @media screen and (max-width: 600px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            h2 {
+                font-size: 1.4em;
+            }
+            button, textarea {
+                font-size: 1em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -60,9 +93,6 @@
         <option value="terminator">Terminator</option>
         <option value="zombie">Zombie</option>
     </select>
-    
-    <!-- Canvas per l'animazione -->
-    <canvas id="animation-canvas"></canvas>
     
     <!-- Contenuto principale -->
     <div class="container">
@@ -83,6 +113,9 @@
         </div>
     </div>
     
+    <!-- Canvas per l'animazione -->
+    <canvas id="matrix"></canvas>
+    
     <script>
         // Variabile per mantenere traccia del tema corrente
         let currentTheme = 'matrix';
@@ -91,7 +124,7 @@
         const body = document.body;
         const container = document.querySelector('.container');
         const themeSelector = document.getElementById('theme-selector');
-        const canvas = document.getElementById('animation-canvas');
+        const canvas = document.getElementById('matrix');
         const ctx = canvas.getContext('2d');
 
         // Imposta le dimensioni del canvas
@@ -221,90 +254,90 @@
                             p.x += p.speedX;
                             p.y += p.speedY;
 
-                            if (p.x < 0) p.x = canvas.width;
-                            if (p.x > canvas.width) p.x = 0;
-                            if (p.y < 0) p.y = canvas.height;
-                            if (p.y > canvas.height) p.y = 0;
-                        });
-                    }
-
-                    if (typeof animationInterval !== 'undefined') clearInterval(animationInterval);
-                    animationInterval = setInterval(drawZombie, 50);
-                }
-            }
-        };
-
-        // Funzione per cambiare il tema
-        function changeTheme(theme) {
-            currentTheme = theme;
-            const themeData = themes[theme];
-
-            // Cambia i colori
-            body.style.backgroundColor = themeData.colors.background;
-            body.style.color = themeData.colors.textColor;
-            container.style.backgroundColor = themeData.colors.inputBackground;
-            container.style.boxShadow = `0 0 15px ${themeData.colors.buttonHover}`;
-            
-            // Aggiorna gli stili degli elementi
-            document.querySelectorAll('textarea, .output').forEach(el => {
-                el.style.backgroundColor = themeData.colors.inputBackground;
-                el.style.color = themeData.colors.textColor;
-                el.style.border = `1px solid ${themeData.colors.buttonHover}`;
-            });
-
-            document.querySelectorAll('button').forEach(el => {
-                el.style.backgroundColor = themeData.colors.buttonBackground;
-                el.style.color = themeData.colors.buttonText;
-                el.style.border = `1px solid ${themeData.colors.buttonHover}`;
-                el.addEventListener('mouseover', function() {
-                    this.style.backgroundColor = themeData.colors.buttonHover;
-                    this.style.color = themeData.colors.buttonBackground;
+                    if (p.x < 0) p.x = canvas.width;
+                    if (p.x > canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = canvas.height;
+                    if (p.y > canvas.height) p.y = 0;
                 });
-                el.addEventListener('mouseout', function() {
-                    this.style.backgroundColor = themeData.colors.buttonBackground;
-                    this.style.color = themeData.colors.buttonText;
-                });
-            });
-
-            // Pulisci il canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Avvia l'animazione del tema
-            themeData.animation();
-        }
-
-        // Inizializza con il tema predefinito
-        let animationInterval;
-        changeTheme(currentTheme);
-
-        // Funzioni di conversione
-        function convertTextToBinary() {
-            const text = document.getElementById('input-text').value;
-            let binary = '';
-            for (let i = 0; i < text.length; i++) {
-                binary += text.charCodeAt(i).toString(2).padStart(8, '0') + ' ';
             }
-            document.getElementById('output-binary').innerText = binary.trim();
-        }
 
-        function convertBinaryToText() {
-            const binary = document.getElementById('input-binary').value;
-            const binaries = binary.trim().split(' ');
-            let text = '';
-            for (let b of binaries) {
-                if (b !== '') {
-                    const character = String.fromCharCode(parseInt(b, 2));
-                    text += character;
-                }
-            }
-            document.getElementById('output-text').innerText = text;
+            if (typeof animationInterval !== 'undefined') clearInterval(animationInterval);
+            animationInterval = setInterval(drawZombie, 50);
         }
+    }
+};
 
-        // Aggiorna le dimensioni del canvas al ridimensionamento della finestra
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+// Funzione per cambiare il tema
+function changeTheme(theme) {
+    currentTheme = theme;
+    const themeData = themes[theme];
+
+    // Cambia i colori
+    body.style.backgroundColor = themeData.colors.background;
+    body.style.color = themeData.colors.textColor;
+    container.style.backgroundColor = themeData.colors.inputBackground;
+    container.style.boxShadow = `0 0 15px ${themeData.colors.buttonHover}`;
+
+    // Aggiorna gli stili degli elementi
+    document.querySelectorAll('textarea, .output').forEach(el => {
+        el.style.backgroundColor = themeData.colors.inputBackground;
+        el.style.color = themeData.colors.textColor;
+        el.style.border = `1px solid ${themeData.colors.buttonHover}`;
+    });
+
+    document.querySelectorAll('button').forEach(el => {
+        el.style.backgroundColor = themeData.colors.buttonBackground;
+        el.style.color = themeData.colors.buttonText;
+        el.style.border = `1px solid ${themeData.colors.buttonHover}`;
+        el.addEventListener('mouseover', function() {
+            this.style.backgroundColor = themeData.colors.buttonHover;
+            this.style.color = themeData.colors.buttonBackground;
         });
-    </script>
+        el.addEventListener('mouseout', function() {
+            this.style.backgroundColor = themeData.colors.buttonBackground;
+            this.style.color = themeData.colors.buttonText;
+        });
+    });
+
+    // Pulisci il canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Avvia l'animazione del tema
+    themeData.animation();
+}
+
+// Inizializza con il tema predefinito
+let animationInterval;
+changeTheme(currentTheme);
+
+// Funzioni di conversione
+function convertTextToBinary() {
+    const text = document.getElementById('input-text').value;
+    let binary = '';
+    for (let i = 0; i < text.length; i++) {
+        binary += text.charCodeAt(i).toString(2).padStart(8, '0') + ' ';
+    }
+    document.getElementById('output-binary').innerText = binary.trim();
+}
+
+function convertBinaryToText() {
+    const binary = document.getElementById('input-binary').value;
+    const binaries = binary.trim().split(' ');
+    let text = '';
+    for (let b of binaries) {
+        if (b !== '') {
+            const character = String.fromCharCode(parseInt(b, 2));
+            text += character;
+        }
+    }
+    document.getElementById('output-text').innerText = text;
+}
+
+// Aggiorna le dimensioni del canvas al ridimensionamento della finestra
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+</script>
 </body>
 </html>
